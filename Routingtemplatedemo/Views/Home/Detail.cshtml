@@ -1,6 +1,12 @@
-﻿@{
+﻿@model List<string>;
+@{
     ViewData["Title"] = "Tim";
 }
 <h1>@ViewData["Title"]</h1>
 
 <p>De tekst uit de url is @ViewData["tekst"].</p>
+
+@foreach(string naam in Model)
+{
+  <p>@naam</p>
+}
