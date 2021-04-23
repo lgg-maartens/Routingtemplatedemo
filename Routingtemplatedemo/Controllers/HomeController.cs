@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using Routingtemplatedemo.Database;
 using Routingtemplatedemo.Models;
 using System;
 using System.Collections.Generic;
@@ -21,9 +22,9 @@ namespace Routingtemplatedemo.Controllers
 
     public IActionResult Index()
     {
-      var names = GetNames();
+      var products = GetNames();
       
-      return View(names);
+      return View(products);
     }
 
     public IActionResult Privacy()
@@ -44,13 +45,13 @@ namespace Routingtemplatedemo.Controllers
       return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
-    public List<string> GetNames()
+    public List<Product> GetNames()
     {
       // stel in waar de database gevonden kan worden
-      string connectionString = "Server=172.16.160.21;Port=3306;Database=fastfood;Uid=lgg;Pwd=;";
+      string connectionString = "Server=172.16.160.21;Port=3306;Database=fastfood;Uid=lgg;Pwd=pwVnb69iD@%r;";
 
       // maak een lege lijst waar we de namen in gaan opslaan
-      List<string> names = new List<string>();
+      List<Product> products = new List<Product>();
 
       // verbinding maken met de database
       using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -59,7 +60,7 @@ namespace Routingtemplatedemo.Controllers
         conn.Open();
 
         // SQL query die we willen uitvoeren
-        MySqlCommand cmd = new MySqlCommand("select * from product where id = 1", conn);
+        MySqlCommand cmd = new MySqlCommand("select * from product", conn);
 
         // resultaat van de query lezen
         using (var reader = cmd.ExecuteReader())
@@ -67,17 +68,20 @@ namespace Routingtemplatedemo.Controllers
           // elke keer een regel (of eigenlijk: database rij) lezen
           while (reader.Read())
           {
-            // selecteer de kolommen die je wil lezen. In dit geval kiezen we de kolom "naam"
-            string Name = reader["naam"].ToString();
+            Product p = new Product();
+            p.Id = Convert.ToInt32(reader["Id"].ToString());
+            p.Eenheid = reader["eenheid"].ToString();
+            p.Naam = reader["naam"].ToString();
+            p.Prijs = reader["prijs"].ToString();
 
             // voeg de naam toe aan de lijst met namen
-            names.Add(Name);
+            products.Add(p);
           }
         }
       }
 
       // return de lijst met namen
-      return names;
+      return products;
     }
 
   }
